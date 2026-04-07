@@ -1,65 +1,42 @@
-# Build libvips
-FROM node:20-alpine3.20 AS node-libvips-dev
-
-ENV VIPS_VERSION=8.16.0
-ENV VIPS_ARCHIVE_FILENAME=vips-${VIPS_VERSION}.tar.xz
-ENV SHARP_FORCE_GLOBAL_LIBVIPS=true
-
-RUN apk add --no-cache meson gobject-introspection-dev wget g++ make python3 
-RUN apk add --no-cache expat-dev glib-dev libwebp-dev jpeg-dev fftw-dev orc-dev libpng-dev tiff-dev lcms2-dev
-
-WORKDIR /libvips
-WORKDIR /libvips-build
-
-RUN wget --quiet https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/${VIPS_ARCHIVE_FILENAME}
-RUN tar xf ${VIPS_ARCHIVE_FILENAME}
-
-WORKDIR /libvips-build/vips-${VIPS_VERSION}
-
-RUN meson setup build-dir --buildtype=release --prefix=/libvips
-
-WORKDIR /libvips-build/vips-${VIPS_VERSION}/build-dir 
-RUN meson compile
-RUN meson install
-
-ENV PKG_CONFIG_PATH=/libvips/lib/pkgconfig/
-RUN pkg-config --modversion vips-cpp | grep ${VIPS_VERSION} -q
-
-# Copy libvips and install it's dependencies
-FROM alpine:3.20 AS alpine-libvips
-
-COPY --from=node-libvips-dev /libvips /libvips
-RUN apk add --no-cache expat glib libwebp jpeg fftw orc libpng tiff lcms2
-
-# Build server and client
-FROM node-libvips-dev AS build
+# ─── Stage 1: Compile JS ──────────────────────────────────────────────────────
+# Runs on the build platform (host), not the target — avoids QEMU overhead
+# for the expensive webpack/TypeScript compilation step.
+FROM --platform=$BUILDPLATFORM node:20-alpine AS build
 
 ENV SHARP_FORCE_GLOBAL_LIBVIPS=true
+
+# Use Alpine's pre-built libvips (no compilation from source needed)
+RUN apk add --no-cache python3 g++ make vips-dev
 
 WORKDIR /app
 
-COPY server/ /app/server
-COPY client/ /app/client
-COPY rest-api/ /app/rest-api
-COPY ["package.json", "package-lock.json*", "./"]
+COPY server/ server/
+COPY client/ client/
+COPY rest-api/ rest-api/
+COPY package.json package-lock.json* ./
 
-RUN apk add --no-cache python3 g++ make
 RUN npm ci
 RUN npm run build
 
-# Build server for production
-FROM node-libvips-dev AS server-build-production
+# ─── Stage 2: Production server dependencies (target platform) ────────────────
+# Must run on the target platform so native modules (sharp, better-sqlite3)
+# are compiled for the correct architecture.
+FROM node:20-alpine AS prod-deps
 
+ENV SHARP_FORCE_GLOBAL_LIBVIPS=true
+
+RUN apk add --no-cache python3 g++ make vips-dev
 
 WORKDIR /server
-COPY ["server/package.json", "server/package-lock.json*", "./"]
-RUN apk add --no-cache python3 g++ make
+COPY server/package.json server/package-lock.json* ./
 RUN npm ci --omit=dev
 
-FROM node:20-alpine3.20 AS node
-FROM alpine-libvips
+# ─── Stage 3: Final runtime image ─────────────────────────────────────────────
+FROM node:20-alpine
 
-RUN apk add --no-cache curl shadow
+RUN apk add --no-cache curl shadow vips \
+    && groupadd --non-unique --gid 1000 abc \
+    && useradd --non-unique --create-home --uid 1000 --gid abc abc
 
 WORKDIR /storage
 VOLUME /storage
@@ -72,14 +49,9 @@ VOLUME /logs
 
 WORKDIR /app
 
-COPY --from=node /usr/local/bin/node /usr/local/bin/
-COPY --from=node /usr/lib/ /usr/lib/
-
 COPY --from=build /app/server/public public
 COPY --from=build /app/server/build build
-
-COPY --from=server-build-production /server/node_modules node_modules
-
+COPY --from=prod-deps /server/node_modules node_modules
 COPY server/package.json ./
 COPY docker/entrypoint.sh /docker/entrypoint.sh
 
@@ -88,15 +60,12 @@ EXPOSE $PORT
 
 ENV PUID=1000
 ENV PGID=1000
-
-RUN groupadd --non-unique --gid 1000 abc
-RUN useradd --non-unique --create-home --uid 1000 --gid abc abc
-
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl ${HOSTNAME}:${PORT}
-
+ENV SHARP_FORCE_GLOBAL_LIBVIPS=true
 ENV DATABASE_PATH="/storage/data.db"
 ENV ASSETS_PATH="/assets"
 ENV LOGS_PATH="/logs"
 ENV NODE_ENV=production
 
-ENTRYPOINT  ["sh", "/docker/entrypoint.sh"]
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl ${HOSTNAME}:${PORT}
+
+ENTRYPOINT ["sh", "/docker/entrypoint.sh"]
