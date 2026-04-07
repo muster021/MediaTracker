@@ -5,7 +5,6 @@ FROM --platform=$BUILDPLATFORM node:20-alpine AS build
 
 ENV SHARP_FORCE_GLOBAL_LIBVIPS=true
 
-# Use Alpine's pre-built libvips (no compilation from source needed)
 RUN apk add --no-cache python3 g++ make vips-dev
 
 WORKDIR /app
@@ -32,18 +31,14 @@ COPY server/package.json server/package-lock.json* ./
 RUN npm ci --omit=dev
 
 # ─── Stage 3: Final runtime image ─────────────────────────────────────────────
-# Use plain alpine (not node:20-alpine) so uid 1000 is free for the 'abc' user.
-# node:20-alpine ships with a 'node' user at uid 1000 which conflicts.
-FROM node:20-alpine AS node-bin
-FROM alpine:3.20
+# Use node:20-alpine as the base so the node binary and all its shared libraries
+# are present without manual copying. Rename the built-in 'node' user (uid=1000)
+# to 'abc' so the rest of the tooling (entrypoint.sh, chown) works by name.
+FROM node:20-alpine
 
 RUN apk add --no-cache curl shadow su-exec vips \
-    && groupadd --gid 1000 abc \
-    && useradd --create-home --uid 1000 --gid abc abc
-
-# Copy node runtime from the node image
-COPY --from=node-bin /usr/local/bin/node /usr/local/bin/
-COPY --from=node-bin /usr/lib/ /usr/lib/
+    && groupmod -n abc node \
+    && usermod -l abc -d /home/abc -m node
 
 WORKDIR /storage
 VOLUME /storage
