@@ -129,10 +129,10 @@ MediaTracker exposes an iCal calendar feed that Home Assistant can consume nativ
 4. Enter the calendar URL:
 
 ```
-http://YOUR_MEDIATRACKER_IP:7481/api/calendar.ics?token=YOUR_TOKEN
+http://YOUR_HOMEASSISTANT_IP:7481/api/calendar.ics?token=YOUR_TOKEN
 ```
 
-> **Note:** Use the server's IP address (e.g. `192.168.1.100`), not a `.local` hostname — mDNS may not resolve inside the HA container.
+> **Note:** Use the IP address of the machine running MediaTracker (e.g. `192.168.1.100`), not a `.local` hostname — mDNS may not resolve inside the HA container. If running as a Home Assistant add-on, this is the same IP as your HA host.
 
 The feed shows all upcoming episodes for series on your watchlist, within the next 90 days. Append `&days=N` to change the window (e.g. `&days=30`).
 
