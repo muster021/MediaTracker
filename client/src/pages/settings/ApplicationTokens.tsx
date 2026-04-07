@@ -64,7 +64,7 @@ export const SettingsApplicationTokensPage: FunctionComponent = () => {
         <ol className="mb-2 text-sm list-decimal list-inside space-y-1">
           <li><Trans>Create a token above</Trans></li>
           <li><Trans>In Home Assistant: <strong>Settings → Devices &amp; Services → Add Integration → Remote Calendar</strong></Trans></li>
-          <li><Trans>Enter the URL below (use the server's IP address, not a .local hostname)</Trans></li>
+          <li><Trans>Enter the URL below (use the server&apos;s IP address, not a .local hostname)</Trans></li>
         </ol>
         <code className="block p-2 text-xs bg-gray-100 dark:bg-gray-800 rounded break-all">
           {window.location.origin}/api/calendar.ics?token=YOUR_TOKEN
