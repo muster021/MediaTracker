@@ -32,11 +32,18 @@ COPY server/package.json server/package-lock.json* ./
 RUN npm ci --omit=dev
 
 # ─── Stage 3: Final runtime image ─────────────────────────────────────────────
-FROM node:20-alpine
+# Use plain alpine (not node:20-alpine) so uid 1000 is free for the 'abc' user.
+# node:20-alpine ships with a 'node' user at uid 1000 which conflicts.
+FROM node:20-alpine AS node-bin
+FROM alpine:3.20
 
-RUN apk add --no-cache curl shadow vips \
-    && groupadd --non-unique --gid 1000 abc \
-    && useradd --non-unique --create-home --uid 1000 --gid abc abc
+RUN apk add --no-cache curl shadow su-exec vips \
+    && groupadd --gid 1000 abc \
+    && useradd --create-home --uid 1000 --gid abc abc
+
+# Copy node runtime from the node image
+COPY --from=node-bin /usr/local/bin/node /usr/local/bin/
+COPY --from=node-bin /usr/lib/ /usr/lib/
 
 WORKDIR /storage
 VOLUME /storage
