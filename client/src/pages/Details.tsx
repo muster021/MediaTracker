@@ -127,6 +127,60 @@ const WhereToWatchComponent: FunctionComponent<{
   );
 };
 
+type WatchProvider = {
+  providerId: number;
+  providerName: string;
+  logoPath: string | null;
+  type: 'flatrate' | 'free' | 'ads' | 'rent' | 'buy';
+};
+
+const WatchProvidersSection: FunctionComponent<{
+  watchProviders: string;
+}> = ({ watchProviders }) => {
+  let providers: WatchProvider[] = [];
+  try {
+    providers = JSON.parse(watchProviders);
+  } catch {
+    return null;
+  }
+  if (!providers.length) return null;
+
+  // Show only flatrate/free/ads (streaming), deduplicated
+  const streaming = providers.filter((p) =>
+    ['flatrate', 'free', 'ads'].includes(p.type)
+  );
+  const unique = streaming.filter(
+    (p, i, arr) => arr.findIndex((x) => x.providerId === p.providerId) === i
+  );
+
+  if (!unique.length) return null;
+
+  return (
+    <div>
+      <span className="font-bold">
+        <Trans>Available on</Trans>:{' '}
+      </span>
+      <div className="flex flex-wrap gap-2 mt-1">
+        {unique.map((p) =>
+          p.logoPath ? (
+            <img
+              key={p.providerId}
+              src={p.logoPath}
+              alt={p.providerName}
+              title={p.providerName}
+              className="w-8 h-8 rounded"
+            />
+          ) : (
+            <span key={p.providerId} className="text-sm">
+              {p.providerName}
+            </span>
+          )
+        )}
+      </div>
+    </div>
+  );
+};
+
 const audibleLanguages: Record<AudibleCountryCode, string> = {
   au: 'au',
   ca: 'ca',
@@ -401,6 +455,12 @@ export const DetailsPage: FunctionComponent = () => {
             </span>
             <span>{mediaItem.source}</span>
           </div>
+
+          {(mediaItem as any).watchProviders && (
+            <WatchProvidersSection
+              watchProviders={(mediaItem as any).watchProviders}
+            />
+          )}
 
           <div className="pt-3">
             <ExternalLinks mediaItem={mediaItem} />

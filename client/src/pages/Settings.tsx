@@ -14,6 +14,7 @@ import { SettingsSegment } from 'src/components/SettingsSegment';
 import { useConfiguration } from 'src/api/configuration';
 import { LogsPage } from 'src/pages/LogsPage';
 import { SettingsAboutPage } from 'src/pages/settings/About';
+import { SettingsSonarrPage } from 'src/pages/settings/Sonarr';
 
 export const SettingsPage: FunctionComponent = () => {
   const { user } = useUser();
@@ -34,6 +35,8 @@ export const SettingsPage: FunctionComponent = () => {
           />
           <Route path="notifications" element={<SettingsNotificationsPage />} />
           <Route path="preferences" element={<SettingsPreferencesPage />} />
+
+          <Route path="sonarr" element={<SettingsSonarrPage />} />
 
           {Boolean(user.admin) && (
             <>
@@ -127,6 +130,10 @@ const useRoutesTitle = () => {
     {
       path: 'notifications',
       name: t`Notifications`,
+    },
+    {
+      path: 'sonarr',
+      name: t`Sonarr`,
     },
     {
       path: 'preferences',

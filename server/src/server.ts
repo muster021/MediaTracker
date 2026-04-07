@@ -119,6 +119,7 @@ export class Server {
           '/api/configuration',
           '/oauth/device/code',
           '/oauth/device/token',
+          '/api/calendar.ics',
         ].includes(req.path)
       ) {
         next();
@@ -128,6 +129,40 @@ export class Server {
     });
 
     this.#app.use(generatedRoutes);
+
+    // iCal calendar feed — token auth via query param, bypasses session auth
+    this.#app.get('/api/calendar.ics', async (req, res) => {
+      const { getCalendarItems } = await import('src/controllers/calendar');
+      const { generateIcal } = await import('src/utils/icalGenerator');
+      const { addDays } = await import('date-fns');
+
+      const userId = Number(req.user);
+      if (!userId || isNaN(userId)) {
+        res.set('WWW-Authenticate', 'Basic realm="MediaTracker"');
+        res.status(401).send('Unauthorized — provide ?token=YOUR_API_TOKEN or HTTP Basic Auth (username: anything, password: token)');
+        return;
+      }
+
+      const days = Number(req.query.days) || 90;
+      const start = new Date();
+      const end = addDays(start, days);
+
+      const items = await getCalendarItems({
+        userId,
+        start: start.toISOString(),
+        end: end.toISOString(),
+      });
+
+      const proto = (req.headers['x-forwarded-proto'] as string) || req.protocol;
+      const host = (req.headers['x-forwarded-host'] as string) || req.headers.host || '';
+      const baseUrl = `${proto}://${host}`;
+      const icalContent = generateIcal(items, baseUrl);
+
+      res.set('Content-Type', 'text/calendar; charset=utf-8');
+      res.set('Content-Disposition', 'attachment; filename="mediatracker.ics"');
+      res.send(icalContent);
+    });
+
     this.#app.use(errorLoggerMiddleware);
 
     return this.#app;

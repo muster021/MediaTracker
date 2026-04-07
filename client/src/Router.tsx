@@ -23,6 +23,7 @@ import { GoodreadsImportPage } from 'src/pages/import/Goodreads';
 import { ListPage } from 'src/pages/ListPage';
 import { EpisodePage } from 'src/pages/EpisodePage';
 import { ListsPage } from 'src/pages/ListsPage';
+import { DiscoverPage } from 'src/pages/Discover';
 
 export const MyRouter: FunctionComponent = () => {
   const { isLoading, user } = useUser();
@@ -118,6 +119,10 @@ export const MyRouter: FunctionComponent = () => {
 
               <Route path="/list/:listId" element={<ListPage key="/list" />} />
 
+              <Route
+                path="/discover"
+                element={<DiscoverPage key="/discover" />}
+              />
               <Route path="/import" element={<ImportPage key="/import" />} />
               <Route
                 path="/import/trakttv"

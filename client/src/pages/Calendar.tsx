@@ -18,7 +18,7 @@ export const CalendarPage: FunctionComponent = () => {
   const { data, isLoading } = useQuery(
     ['calendar', datesSet?.startStr, datesSet?.endStr],
     () =>
-      mediaTrackerApi.calendar.get({
+      mediaTrackerApi.calendar.calendarList({
         start: datesSet.startStr,
         end: datesSet.endStr,
       }),

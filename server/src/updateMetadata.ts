@@ -11,6 +11,8 @@ import {
 import { TvEpisode } from 'src/entity/tvepisode';
 import { TvSeason, TvSeasonFilters } from 'src/entity/tvseason';
 import { metadataProviders } from 'src/metadata/metadataProviders';
+import { TMDbTv } from 'src/metadata/provider/tmdb';
+import { GlobalConfiguration } from 'src/repository/globalSettings';
 import { mediaItemRepository } from 'src/repository/mediaItem';
 import { durationToMilliseconds, updateAsset } from 'src/utils';
 import { Notifications } from 'src/notifications/notifications';
@@ -362,6 +364,22 @@ export const updateMediaItem = async (
           };
 
     if (updatedMediaItem) {
+      // Fetch watch providers for TV shows with a TMDB ID
+      if (updatedMediaItem.mediaType === 'tv' && updatedMediaItem.tmdbId) {
+        try {
+          const countryCode =
+            GlobalConfiguration.configuration.watchProvidersCountry || 'SE';
+          const providers = await new TMDbTv().getWatchProviders(
+            updatedMediaItem.tmdbId,
+            countryCode
+          );
+          updatedMediaItem.watchProviders =
+            providers.length > 0 ? JSON.stringify(providers) : null;
+        } catch {
+          // Non-critical — skip on failure
+        }
+      }
+
       await mediaItemRepository.update(updatedMediaItem);
 
       await downloadNewAssets(oldMediaItem, updatedMediaItem);

@@ -6,6 +6,9 @@ export type Configuration = {
   serverLang?: ServerLang;
   igdbClientId?: string;
   igdbClientSecret?: string;
+  sonarrUrl?: string;
+  sonarrApiKey?: string;
+  watchProvidersCountry?: string;
 };
 
 export type ServerLang = 'da' | 'de' | 'en' | 'es' | 'fr' | 'ko' | 'pt';

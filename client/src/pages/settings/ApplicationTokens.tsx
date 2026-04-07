@@ -1,6 +1,7 @@
 import React, { FunctionComponent, useState } from 'react';
 import { Trans } from '@lingui/macro';
 import { useTokens } from 'src/api/token';
+import { SettingsSegment } from 'src/components/SettingsSegment';
 
 export const SettingsApplicationTokensPage: FunctionComponent = () => {
   const { tokens, addToken, removeToken } = useTokens();
@@ -38,7 +39,9 @@ export const SettingsApplicationTokensPage: FunctionComponent = () => {
             <div className="inline-block mr-2">{token}</div>
             {token in newTokens && (
               <>
-                <div className="inline-block mr-2">{newTokens[token]}</div>
+                <div className="inline-block mr-2 font-mono text-sm bg-gray-100 dark:bg-gray-800 px-1 rounded">
+                  {newTokens[token]}
+                </div>
               </>
             )}
             <button
@@ -49,6 +52,27 @@ export const SettingsApplicationTokensPage: FunctionComponent = () => {
             </button>
           </div>
         ))}
+
+      <div className="my-4 border-t"></div>
+
+      <SettingsSegment title="Home Assistant — iCal Calendar">
+        <p className="mb-2 text-sm">
+          <Trans>
+            Add upcoming episodes to Home Assistant using the <strong>Remote Calendar</strong> integration (HA 2025.4+).
+          </Trans>
+        </p>
+        <ol className="mb-2 text-sm list-decimal list-inside space-y-1">
+          <li><Trans>Create a token above</Trans></li>
+          <li><Trans>In Home Assistant: <strong>Settings → Devices &amp; Services → Add Integration → Remote Calendar</strong></Trans></li>
+          <li><Trans>Enter the URL below (use the server's IP address, not a .local hostname)</Trans></li>
+        </ol>
+        <code className="block p-2 text-xs bg-gray-100 dark:bg-gray-800 rounded break-all">
+          {window.location.origin}/api/calendar.ics?token=YOUR_TOKEN
+        </code>
+        <p className="mt-2 text-xs text-gray-500">
+          <Trans>Append &amp;days=N to change the lookahead window (default: 90 days).</Trans>
+        </p>
+      </SettingsSegment>
     </>
   );
 };

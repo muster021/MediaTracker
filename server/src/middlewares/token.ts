@@ -12,6 +12,17 @@ export class AccessTokenMiddleware {
       token = authHeader.substring(7); // Remove 'Bearer ' prefix
     }
 
+    // HTTP Basic Auth — HA Remote Calendar uses this format
+    // URL: http://mediatracker:TOKEN@host:7481/api/calendar.ics
+    // HA sends: Authorization: Basic base64(mediatracker:TOKEN)
+    if (!token && authHeader && authHeader.startsWith('Basic ')) {
+      const decoded = Buffer.from(authHeader.substring(6), 'base64').toString('utf8');
+      const colonIdx = decoded.indexOf(':');
+      if (colonIdx !== -1) {
+        token = decoded.substring(colonIdx + 1); // password = token
+      }
+    }
+
     // If not found in Authorization header, check Access-Token header
     if (!token) {
       token = req.header('Access-Token');

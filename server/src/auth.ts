@@ -11,7 +11,7 @@ export const requireUserAuthentication = (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.isAuthenticated()) {
+  if (!req.isAuthenticated() && req.user === undefined) {
     res.redirect(401, '/#login');
   } else {
     next();

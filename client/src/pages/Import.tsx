@@ -20,6 +20,17 @@ const LinkComponent: FunctionComponent<{
   );
 };
 
+const SonarrLinkComponent: FunctionComponent = () => {
+  return (
+    <Link to="/settings/sonarr" className="mt-4 no-underline w-fit">
+      <div className="flex flex-row items-center text-lg btn-blue">
+        <Trans>Import from</Trans>{' '}
+        <span className="ml-2 font-bold">Sonarr</span>
+      </div>
+    </Link>
+  );
+};
+
 export const ImportPage: FunctionComponent = () => {
   const { darkMode } = useDarkMode();
 
@@ -31,6 +42,8 @@ export const ImportPage: FunctionComponent = () => {
       />
 
       <LinkComponent path="goodreads" imgSrc="logo/goodreads.svg" />
+
+      <SonarrLinkComponent />
     </div>
   );
 };

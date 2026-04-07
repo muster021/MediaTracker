@@ -1,41 +1,12 @@
-# MediaTracker &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bonukai/MediaTracker/blob/main/LICENSE.md) [![Join the chat at https://gitter.im/bonukai/MediaTracker](https://badges.gitter.im/bonukai/MediaTracker.svg)](https://gitter.im/bonukai/MediaTracker?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Crowdin](https://badges.crowdin.net/mediatracker/localized.svg)](https://crowdin.com/project/mediatracker) [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/bonukai/mediatracker)](https://hub.docker.com/r/bonukai/mediatracker) [![Docker Pulls](https://img.shields.io/docker/pulls/bonukai/mediatracker)](https://hub.docker.com/r/bonukai/mediatracker) [![CodeFactor](https://www.codefactor.io/repository/github/bonukai/mediatracker/badge)](https://www.codefactor.io/repository/github/bonukai/mediatracker) [![codecov](https://codecov.io/gh/bonukai/MediaTracker/branch/main/graph/badge.svg?token=CPMW6R7M1Z)](https://codecov.io/gh/bonukai/MediaTracker)
+# MediaTracker &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/muster021/MediaTracker/blob/main/LICENSE.md)
 
-Self hosted platform for tracking movies, tv shows, video games, books and audiobooks, highly inspired by [flox](https://github.com/devfake/flox)
+Self hosted platform for tracking movies, tv shows, video games, books and audiobooks.
 
-# Demo
-
-[mediatracker.app](https://mediatracker.app/)\
-Username: **demo**\
-Password: **demo**
-
-# API Documentation
-
-[https://bonukai.github.io/MediaTracker/](https://bonukai.github.io/MediaTracker/)
+> **Fork notice:** This is a fork of [bonukai/MediaTracker](https://github.com/bonukai/MediaTracker) with added Home Assistant integration, Sonarr sync, Discover page and streaming availability. The Docker image is published at `ghcr.io/muster021/mediatracker`.
 
 # Installation
 
-## Building from source
-
-```bash
-git clone https://github.com/bonukai/MediaTracker.git
-cd MediaTracker
-npm install
-npm run build
-npm run start
-```
-
-## From npm
-
-```
-npm install -g mediatracker
-mediatracker
-```
-
-Database file, logs and assets will be saved in `$HOME/.mediatracker`
-
 ## With docker
-
-## Version Tags
 
 | Tag      | Description     |
 | -------- | --------------- |
@@ -53,12 +24,12 @@ docker run \
     -e TMDB_LANG=en \
     -e AUDIBLE_LANG=us \
     -e TZ=Europe/London \
-    bonukai/mediatracker:latest
+    ghcr.io/muster021/mediatracker:latest
 ```
 
 ## With docker-compose
 
-```bash
+```yaml
 version: "3"
 services:
   mediatracker:
@@ -73,10 +44,20 @@ services:
       TMDB_LANG: en
       AUDIBLE_LANG: us
       TZ: Europe/London
-    image: bonukai/mediatracker:latest
+    image: ghcr.io/muster021/mediatracker:latest
 
 volumes:
   assetsVolume: null
+```
+
+## Building from source
+
+```bash
+git clone https://github.com/muster021/MediaTracker.git
+cd MediaTracker
+npm install
+npm run build
+npm run start
 ```
 
 ### Parameters
@@ -93,7 +74,7 @@ volumes:
 | Name               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | TMDB_LANG          | ISO 639-1 country code, one of: `om`, `ab`, `aa`, `af`, `sq`, `am`, `ar`, `hy`, `as`, `ay`, `az`, `ba`, `eu`, `bn`, `dz`, `bh`, `bi`, `br`, `bg`, `my`, `be`, `km`, `ca`, `zh`, `co`, `hr`, `cs`, `da`, `nl`, `en`, `eo`, `et`, `fo`, `fj`, `fi`, `fr`, `fy`, `gl`, `ka`, `de`, `el`, `kl`, `gn`, `gu`, `ha`, `he`, `hi`, `hu`, `is`, `id`, `ia`, `ie`, `ik`, `iu`, `ga`, `it`, `ja`, `jw`, `kn`, `ks`, `kk`, `rw`, `ky`, `rn`, `ko`, `ku`, `lo`, `la`, `lv`, `ln`, `lt`, `mk`, `mg`, `ms`, `ml`, `mt`, `mi`, `mr`, `mo`, `mn`, `na`, `ne`, `no`, `oc`, `or`, `ps`, `fa`, `pl`, `pt`, `pa`, `qu`, `rm`, `ro`, `ru`, `sm`, `sg`, `sa`, `gd`, `sr`, `sh`, `st`, `tn`, `sn`, `sd`, `si`, `ss`, `sk`, `sl`, `so`, `es`, `su`, `sw`, `sv`, `tl`, `tg`, `ta`, `tt`, `te`, `th`, `bo`, `ti`, `to`, `ts`, `tr`, `tk`, `tw`, `ug`, `uk`, `ur`, `uz`, `vi`, `vo`, `cy`, `wo`, `xh`, `yi`, `yo`, `za`, `zu` |
-| AUDIBLE_LANG       | ISO 639-1 country code, one of: `au`, `ca`, `de`, `es`, `fr`, `in`, `it`, `jp`, `gb`, `us`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| AUDIBLE_LANG       | ISO 639-1 country code, one of: `au`, `ca`, `de`, `es`, `fr`, `in`, `it`, `jp`, `uk`, `us`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | SERVER_LANG        | ISO 639-1 country code, one of: `da`, `de`, `en`, `es`, `fr`, `ko`, `pt`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | DATABASE_CLIENT    | Database client: `better-sqlite3` or `pg`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | DATABASE_PATH      | Only for sqlite, path to database                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -108,21 +89,10 @@ volumes:
 | PUID               | UserID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | PGID               | GroupID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | TZ                 | Timezone, for example `Europe/London`, see [full list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| ASSETS_PATH        | Directory for posters and backdrops, defaults to '$HOME/.mediatracker/img'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| LOGS_PATH          | Directory for logs, defaults to '$HOME/.mediatracker/logs'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| HOSTNAME           | IP address that the server will listen on                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| PORT               | Port that the server will listen on                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-
-## Heroku
-
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
-
-# Building docker image
-
-```bash
-docker build --tag mediatracker:latest https://github.com/bonukai/MediaTracker.git
-docker run -p 7481:7481 mediatracker
-```
+| ASSETS_PATH        | Directory for posters and backdrops, defaults to `$HOME/.mediatracker/img`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| LOGS_PATH          | Directory for logs, defaults to `$HOME/.mediatracker/logs`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| HOSTNAME           | IP address that the server will listen on (default: `0.0.0.0`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| PORT               | Port that the server will listen on (default: `7481`)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 # Features
 
@@ -131,9 +101,13 @@ docker run -p 7481:7481 mediatracker
 -   multiple users
 -   REST API
 -   watchlist
--   docker image
+-   docker image (`ghcr.io/muster021/mediatracker`)
 -   import from [Trakt](https://trakt.tv)
 -   import from [goodreads](https://www.goodreads.com)
+-   import from [Sonarr](https://sonarr.tv)
+-   Home Assistant iCal calendar feed
+-   Discover trending TV shows (powered by TMDB)
+-   Streaming availability (watch providers, configurable per country)
 
 # Import
 
@@ -141,6 +115,51 @@ docker run -p 7481:7481 mediatracker
 | -------------------------------------- | ---------------------------------------------- |
 | [Trakt](https://trakt.tv)              | Watchlist, watched history, ratings            |
 | [goodreads](https://www.goodreads.com) | Read, Currently Reading, Want to Read, ratings |
+| [Sonarr](https://sonarr.tv)            | Monitored TV series → watchlist                |
+
+# Home Assistant Integration
+
+MediaTracker exposes an iCal calendar feed that Home Assistant can consume natively — no custom component required. Requires Home Assistant 2025.4 or later.
+
+## Setup
+
+1. In MediaTracker: go to **Settings → Application tokens** and create a new token
+2. In Home Assistant: go to **Settings → Devices & Services → Add Integration**
+3. Search for **Remote Calendar** and select it
+4. Enter the calendar URL:
+
+```
+http://YOUR_MEDIATRACKER_IP:7481/api/calendar.ics?token=YOUR_TOKEN
+```
+
+> **Note:** Use the server's IP address (e.g. `192.168.1.100`), not a `.local` hostname — mDNS may not resolve inside the HA container.
+
+The feed shows all upcoming episodes for series on your watchlist, within the next 90 days. Append `&days=N` to change the window (e.g. `&days=30`).
+
+Once added, the calendar entity appears in Home Assistant and can be used in automations and the calendar view.
+
+> **Alternative auth:** The feed also supports HTTP Basic Auth (username: anything, password: your token): `http://user:TOKEN@host:7481/api/calendar.ics`
+
+# Sonarr Integration
+
+Sync series from Sonarr into your MediaTracker watchlist.
+
+1. Go to **Settings → Sonarr**
+2. Enter your Sonarr URL (e.g. `http://localhost:8989`) and API key
+3. Click **Test connection** to verify
+4. Click **Import from Sonarr** to add all monitored series to your watchlist
+
+Series already on your watchlist are skipped. Safe to re-run at any time.
+
+# Discover
+
+The **Discover** page shows trending TV shows from TMDB for the current week. Add any show directly to your watchlist from this page.
+
+# Streaming Availability
+
+Series detail pages show which streaming services a title is available on (Netflix, HBO, Disney+, etc.), based on TMDB watch provider data.
+
+Configure the country in **Settings → Configuration → Watch providers country** (ISO 3166-1 alpha-2, e.g. `SE`, `NO`, `US`, `GB`). Refreshed automatically with metadata updates.
 
 # Metadata providers
 
@@ -151,7 +170,7 @@ docker run -p 7481:7481 mediatracker
 | [Audible API](https://audible.readthedocs.io/en/latest/misc/external_api.html) | audiobooks     |      ✓       |
 | [Open Library](https://openlibrary.org/)                                       | books          |      ✗       |
 
-\* IGDB has a limit of 4 requests per second. Because of that IGDB API key is not provided with MediaTracker, it can be acquired [here](https://api-docs.igdb.com/#account-creation) and set in [http://localhost:7481/#/settings/configuration](http://localhost:7481/#/settings/configuration)
+\* IGDB API key can be acquired [here](https://api-docs.igdb.com/#account-creation) and set in Settings → Configuration.
 
 # Notification platforms
 
@@ -164,21 +183,11 @@ docker run -p 7481:7481 mediatracker
 
 # Integrations
 
--   [Jellyfin](https://jellyfin.org/) - [Plugin](https://github.com/bonukai/jellyfin-plugin-mediatracker), minimum MediaTracker version: `0.1.0`
--   [Plex](https://www.plex.tv/) - Generate Application token in your MediaTracker instance, and add a [webhook](https://app.plex.tv/desktop/#!/settings/webhooks) in plex `[your MediaTracker url]/api/plex?token=[MediaTracker Application Token]`
--   [Kodi](https://kodi.tv/) - [Plugin](https://github.com/bonukai/script.mediatracker), minimum MediaTracker version: `0.1.0`
+-   [Jellyfin](https://jellyfin.org/) - [Plugin](https://github.com/bonukai/jellyfin-plugin-mediatracker)
+-   [Plex](https://www.plex.tv/) - Add a [webhook](https://app.plex.tv/desktop/#!/settings/webhooks): `[your MediaTracker url]/api/plex?token=[Application Token]`
+-   [Kodi](https://kodi.tv/) - [Plugin](https://github.com/bonukai/script.mediatracker)
+-   [Home Assistant](https://www.home-assistant.io/) - [HA Add-on](https://github.com/muster021/ha-addon-mediatracker)
 
-# Contributors
+# Attribution
 
--   [URBANsUNITED](https://github.com/URBANsUNITED) (German translation)
-
-# Similar projects
-
--   [devfake/flox](https://github.com/devfake/flox)
--   [FuzzyGrim/Yamtrack](https://github.com/FuzzyGrim/Yamtrack)
--   [IgnisDa/ryot](https://github.com/IgnisDa/ryot)
--   [krateng/maloja](https://github.com/krateng/maloja)
--   [leepeuker/movary](https://github.com/leepeuker/movary)
--   [MaarifaMaarifa/series-troxide](https://github.com/MaarifaMaarifa/series-troxide)
--   [sbondCo/Watcharr](https://github.com/sbondCo/Watcharr)
-
+Forked from [bonukai/MediaTracker](https://github.com/bonukai/MediaTracker) — MIT License.

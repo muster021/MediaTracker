@@ -8,6 +8,13 @@ import { GlobalConfiguration } from 'src/repository/globalSettings';
 
 const TMDB_API_KEY = '779734046efc1e6127485c54d3b29627';
 
+export type WatchProvider = {
+  providerId: number;
+  providerName: string;
+  logoPath: string | null;
+  type: 'flatrate' | 'free' | 'ads' | 'rent' | 'buy';
+};
+
 type PosterSize =
   | 'w92'
   | 'w154'
@@ -305,6 +312,39 @@ export class TMDbTv extends TMDb {
     });
 
     return tvShow;
+  }
+
+  async getWatchProviders(
+    tmdbId: number,
+    countryCode = 'SE'
+  ): Promise<WatchProvider[]> {
+    try {
+      const res = await axios.get(
+        `https://api.themoviedb.org/3/tv/${tmdbId}/watch/providers`,
+        { params: { api_key: TMDB_API_KEY } }
+      );
+      const countryData = res.data?.results?.[countryCode];
+      if (!countryData) return [];
+
+      const providers: WatchProvider[] = [];
+      for (const type of ['flatrate', 'free', 'ads', 'rent', 'buy'] as const) {
+        if (countryData[type]) {
+          for (const p of countryData[type]) {
+            providers.push({
+              providerId: p.provider_id,
+              providerName: p.provider_name,
+              logoPath: p.logo_path
+                ? `https://image.tmdb.org/t/p/original${p.logo_path}`
+                : null,
+              type,
+            });
+          }
+        }
+      }
+      return providers;
+    } catch {
+      return [];
+    }
   }
 
   private mapEpisode(item: TMDbApi.Episode) {

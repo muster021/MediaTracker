@@ -84,6 +84,26 @@ export const SettingsConfigurationPage: FunctionComponent = () => {
 
           <div className="mt-3" />
 
+          <SettingsSegment title={t`Watch providers country`}>
+            <p className="mb-2 text-sm">
+              <Trans>ISO 3166-1 alpha-2 country code for streaming availability (e.g. SE, NO, US, GB)</Trans>
+            </p>
+            <input
+              type="text"
+              maxLength={2}
+              className="w-16 uppercase"
+              placeholder="SE"
+              value={(configuration as any).watchProvidersCountry || 'SE'}
+              onChange={(e) =>
+                update({
+                  watchProvidersCountry: e.currentTarget.value.toUpperCase(),
+                } as any)
+              }
+            />
+          </SettingsSegment>
+
+          <div className="mt-3" />
+
           <IGDBcredentialsComponent />
         </>
       )}

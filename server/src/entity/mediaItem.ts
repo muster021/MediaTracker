@@ -49,6 +49,7 @@ export type MediaItemBase = ExternalIds & {
   audibleCountryCode?: AudibleCountryCode;
   needsDetails?: boolean;
   lockedAt?: number;
+  watchProviders?: string | null;
 };
 
 export type MediaItemBaseWithSeasons = MediaItemBase & {

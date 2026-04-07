@@ -63,6 +63,7 @@ const validatorHandler = (args: {
 
 import { CalendarController } from '../../controllers/calendar';
 import { ConfigurationController } from '../../controllers/configuration';
+import { DiscoverController } from '../../controllers/discover';
 import { ImgController } from '../../controllers/img';
 import { MediaItemController } from '../../controllers/item';
 import { ItemsController } from '../../controllers/items';
@@ -80,10 +81,12 @@ import { TokenController } from '../../controllers/token';
 import { UsersController } from '../../controllers/users';
 import { WatchlistController } from '../../controllers/watchlist';
 import { GoodreadsImportController } from '../../controllers/import/goodreads';
+import { SonarrImportController } from '../../controllers/import/sonarr';
 import { TraktTvImportController } from '../../controllers/import/traktTv';
 
 const _CalendarController = new CalendarController();
 const _ConfigurationController = new ConfigurationController();
+const _DiscoverController = new DiscoverController();
 const _ImgController = new ImgController();
 const _MediaItemController = new MediaItemController();
 const _ItemsController = new ItemsController();
@@ -101,6 +104,7 @@ const _TokenController = new TokenController();
 const _UsersController = new UsersController();
 const _WatchlistController = new WatchlistController();
 const _GoodreadsImportController = new GoodreadsImportController();
+const _SonarrImportController = new SonarrImportController();
 const _TraktTvImportController = new TraktTvImportController();
 
 const router: Router = express.Router();
@@ -303,6 +307,9 @@ router.patch(
         },
         igdbClientId: { type: ['string', 'null'] },
         igdbClientSecret: { type: ['string', 'null'] },
+        sonarrUrl: { type: ['string', 'null'] },
+        sonarrApiKey: { type: ['string', 'null'] },
+        watchProvidersCountry: { type: ['string', 'null'] },
       },
     },
   }),
@@ -312,6 +319,29 @@ router.get(
   '/api/configuration',
   validatorHandler({}),
   _ConfigurationController.get
+);
+router.get(
+  '/api/discover/trending',
+  validatorHandler({
+    requestQuerySchema: {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      type: 'object',
+      properties: { page: { type: ['number', 'null'] } },
+    },
+  }),
+  _DiscoverController.trending
+);
+router.post(
+  '/api/discover/add-to-watchlist',
+  validatorHandler({
+    requestBodySchema: {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      type: 'object',
+      properties: { tmdbId: { type: 'number' } },
+      required: ['tmdbId'],
+    },
+  }),
+  _DiscoverController.addToWatchlist
 );
 router.get(
   '/img/:id',
@@ -368,6 +398,8 @@ router.get(
             {
               type: 'object',
               properties: {
+                filter: { type: ['string', 'null'] },
+                page: { type: ['number', 'null'] },
                 orderBy: {
                   oneOf: [
                     { $ref: '#/definitions/MediaItemOrderBy' },
@@ -380,7 +412,6 @@ router.get(
                     { type: 'null' },
                   ],
                 },
-                filter: { type: ['string', 'null'] },
                 onlyOnWatchlist: { type: ['boolean', 'null'] },
                 onlySeenItems: { type: ['boolean', 'null'] },
                 onlyWithNextEpisodesToWatch: { type: ['boolean', 'null'] },
@@ -388,7 +419,6 @@ router.get(
                 onlyWithUserRating: { type: ['boolean', 'null'] },
                 onlyWithoutUserRating: { type: ['boolean', 'null'] },
                 onlyWithProgress: { type: ['boolean', 'null'] },
-                page: { type: ['number', 'null'] },
               },
             },
             {
@@ -457,6 +487,7 @@ router.get(
       },
       type: 'object',
       properties: {
+        filter: { type: ['string', 'null'] },
         mediaType: {
           oneOf: [{ $ref: '#/definitions/MediaType' }, { type: 'null' }],
         },
@@ -466,7 +497,6 @@ router.get(
         sortOrder: {
           oneOf: [{ $ref: '#/definitions/SortOrder' }, { type: 'null' }],
         },
-        filter: { type: ['string', 'null'] },
         onlyOnWatchlist: { type: ['boolean', 'null'] },
         onlySeenItems: { type: ['boolean', 'null'] },
         onlyWithNextEpisodesToWatch: { type: ['boolean', 'null'] },
@@ -689,9 +719,9 @@ router.put(
       properties: {
         mediaItemId: { type: 'number' },
         episodeId: { type: ['number', 'null'] },
-        progress: { type: ['number', 'null'] },
         date: { type: 'number' },
         duration: { type: ['number', 'null'] },
+        progress: { type: ['number', 'null'] },
         action: { enum: ['paused', 'playing', null], type: 'string' },
         device: { type: ['string', 'null'] },
       },
@@ -1141,6 +1171,16 @@ router.post(
     },
   }),
   _GoodreadsImportController.import
+);
+router.get(
+  '/api/import/sonarr/preview',
+  validatorHandler({}),
+  _SonarrImportController.preview
+);
+router.post(
+  '/api/import/sonarr',
+  validatorHandler({}),
+  _SonarrImportController.import
 );
 router.get(
   '/api/import-trakttv/state',
