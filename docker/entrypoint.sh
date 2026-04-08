@@ -17,4 +17,4 @@ chown -R abc:abc /storage
 chown -R abc:abc /assets
 chown -R abc:abc /logs
 
-exec su-exec abc node /app/build/index.js
+exec su-exec abc /usr/local/bin/node /app/build/index.js
